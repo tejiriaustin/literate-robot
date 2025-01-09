@@ -1,0 +1,4 @@
+**/buf.lock
+.idea
+.env
+**/*.pb.go
