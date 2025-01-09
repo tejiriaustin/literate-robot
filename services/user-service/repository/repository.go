@@ -11,7 +11,8 @@ import (
 
 type (
 	UserServiceRepository struct {
-		UserRepo *repository.Repository[userModel.User]
+		UserRepo        *repository.Repository[userModel.User]
+		UserProfileRepo *repository.Repository[userModel.UserProfile]
 	}
 
 	UserRepositoryInterface[T userModel.User] interface {
@@ -26,6 +27,7 @@ type (
 
 func NewUserServiceRepository(dbClient *database.Client) *UserServiceRepository {
 	return &UserServiceRepository{
-		UserRepo: repository.NewRepository[userModel.User](dbClient),
+		UserRepo:        repository.NewRepository[userModel.User](dbClient),
+		UserProfileRepo: repository.NewRepository[userModel.UserProfile](dbClient),
 	}
 }

@@ -2,7 +2,7 @@ go 1.23.3
 
 use (
 	./core
-	./gateway
-	./order-service
-	./user-service
+	./services/gateway
+	./services/order-service
+	./services/user-service
 )

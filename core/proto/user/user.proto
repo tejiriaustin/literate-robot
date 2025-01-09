@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = "github.com/literate-robot/core/user";
+
 service UserService {
   rpc GetUserDetails(GetUserRequest) returns (UserDetailsResponse);
 }

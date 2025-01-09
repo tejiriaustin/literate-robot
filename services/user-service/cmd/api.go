@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 Tejiri tejiriaustin123@gmail.com
-*/
 package cmd
 
 import (
@@ -10,9 +7,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tejiriaustin/literate-robot/core/config"
 	"github.com/tejiriaustin/literate-robot/core/database"
+	"github.com/tejiriaustin/literate-robot/core/logger"
 	"google.golang.org/grpc"
 
 	"user-service/controller"
+	"user-service/enviroment"
 	"user-service/repository"
 	"user-service/service"
 )
@@ -20,12 +19,14 @@ import (
 // apiCmd represents the api command
 var apiCmd = &cobra.Command{
 	Use:   "api",
-	Short: "Starts user Service API",
+	Short: "Starts User Service API",
 	Run:   startAPI,
 }
 
 func startAPI(cmd *cobra.Command, args []string) {
 	cfg := setupEnvironment()
+
+	nlog := logger.NewZeroLogger()
 
 	dbCfg := &database.Config{
 		Host:     cfg.GetAsString("HOST"),
@@ -36,14 +37,15 @@ func startAPI(cmd *cobra.Command, args []string) {
 	}
 	dbConn, err := database.Initialize(dbCfg)
 	if err != nil {
+		nlog.Fatal("Failed to connect to database", logger.WithField("err", err))
 		return
 	}
 
-	repo := repository.NewUserServiceRepository(dbConn)
+	userRepo := repository.NewUserServiceRepository(dbConn)
 
-	src := service.NewUserService()
+	userService := service.NewUserService()
 
-	ctlr := controller.NewUserController()
+	controller := controller.NewUserController(userService, userRepo)
 
 	lis, err := net.Listen("tcp", cfg.GetAsString("PORT"))
 	if err != nil {
@@ -58,12 +60,11 @@ func init() {
 
 func setupEnvironment() *config.Environment {
 	cfg := config.NewEnvironment().
-		AddEnv("PORT", config.MustGetEnv("PORT")).
-		AddEnv("PORT", config.MustGetEnv("HOST")).
-		AddEnv("PORT", config.MustGetEnv("DB_PORT")).
-		AddEnv("PORT", config.MustGetEnv("USERNAME")).
-		AddEnv("PORT", config.MustGetEnv("PASSWORD")).
-		AddEnv("PORT", config.MustGetEnv("DB_NAME"))
+		AddEnv(enviroment.Port, config.MustGetEnv(enviroment.Port)).
+		AddEnv(enviroment.Host, config.MustGetEnv(enviroment.Host)).
+		AddEnv(enviroment.DatabaseName, config.MustGetEnv(enviroment.DatabaseName)).
+		AddEnv(enviroment.DatabaseUsername, config.MustGetEnv(enviroment.DatabaseUsername)).
+		AddEnv(enviroment.DatabasePassword, config.MustGetEnv(enviroment.DatabasePassword))
 
 	return &cfg
 }

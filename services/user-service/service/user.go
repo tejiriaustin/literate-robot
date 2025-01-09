@@ -9,7 +9,7 @@ type UserService struct{}
 
 var _ UserServiceInterface = (*UserService)(nil)
 
-func NewUserService() *UserService {
+func NewUserService() UserServiceInterface {
 	return &UserService{}
 }
 
